@@ -12,3 +12,5 @@ build/
 
 # Ignore dist directory
 dist/
+
+.coverage
