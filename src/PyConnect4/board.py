@@ -55,13 +55,9 @@ class Connect4Board:
         self.turn = 0  # 0 for player0, 1 for player1
 
         # ! These can probably be optimised with binary operations but they are only calculated once
-
         # 1s indicate the lowest free position in each column
-        # TODO: Make tests for different widths and heights ensuring bitboard is correct
         self.bottom_mask = int(("1" + "0" * self.height) * self.width, 2)
-
         # Mask of the top of each column
-        # TODO: Make tests for different widths and heights ensuring bitboard is correct
         self.top_of_columns = int(("0" * self.height + "1") * self.width, 2)
 
         self.player0_piece = colored("●", "red")

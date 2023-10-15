@@ -1,16 +1,7 @@
-# Ignore PyConnect4.egg-info directory
-src/PyConnect4.egg-info/
-
-# Ignore __pycache__ directories
+.*
+!/.gitignore
 __pycache__/
-
-# Ignore build directory
 build/
-
-# Ignore .vscode directory
-.vscode/
-
-# Ignore dist directory
 dist/
-
-.coverage
+*.egg-info/
+*.py[cod]
