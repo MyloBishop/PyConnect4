@@ -86,6 +86,22 @@ class Connect4Board:
             print(line)
         print()
 
+    def is_valid_move(self, column: int) -> bool:
+        """
+        Check if the specified column is a valid move.
+        This is done by seeing if the lowest free position is at the "false top" of the column.
+
+        Args:
+            column (int): 0-based index of the column to make a move in
+
+        Returns:
+            bool: True if the move is valid, False otherwise
+        """
+        top_of_selected_column = 0b0000001 << (
+            (6 - column) * 7
+        )  # Mask of the cell at the top of the column in padded height
+        return not bool(self.lowest_free_in_column & top_of_selected_column)
+
     def setup_position(self, position: str):
         """
         Sets up the board to the given position.
