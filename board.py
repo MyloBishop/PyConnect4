@@ -102,6 +102,22 @@ class Connect4Board:
             ), f"Invalid move {move} at index {index} in position {position}."
             self.make_move(move)
 
+    def is_valid_move(self, column: int) -> bool:
+        """
+        Check if the specified column is a valid move.
+        This is done by seeing if the lowest free position is at the "false top" of the column.
+
+        Args:
+            column (int): 0-based index of the column to make a move in
+
+        Returns:
+            bool: True if the move is valid, False otherwise
+        """
+        top_of_selected_column = 0b0000001 << (
+            (6 - column) * 7
+        )  # Mask of the cell at the top of the column in padded height
+        return not bool(self.lowest_free_in_column & top_of_selected_column)
+
     def make_move(self, column: int):
         """
         Uses bitboards to make a move in the specified column for the given player.
@@ -153,22 +169,6 @@ class Connect4Board:
             self.player1_bitboard ^= old_move  # Undo the move on player1's bitboard
 
         self.turn = self.turn ^ 1  # Revert turn to the player who made the move
-
-    def is_valid_move(self, column: int) -> bool:
-        """
-        Check if the specified column is a valid move.
-        This is done by seeing if the lowest free position is at the "false top" of the column.
-
-        Args:
-            column (int): 0-based index of the column to make a move in
-
-        Returns:
-            bool: True if the move is valid, False otherwise
-        """
-        top_of_selected_column = 0b0000001 << (
-            (6 - column) * 7
-        )  # Mask of the cell at the top of the column in padded height
-        return not bool(self.lowest_free_in_column & top_of_selected_column)
 
     def get_legal_moves(self) -> list[int]:
         """
