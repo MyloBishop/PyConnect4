@@ -23,22 +23,24 @@ def test_start_bitboards():
 
 
 def test_setups():
-    board = Connect4Board("0123456654321")
+    board = Connect4Board(position="0123456654321")
     assert board.player0_bitboard == 282591736369216
     assert board.player1_bitboard == 2207747940384
     assert board.turn == 1
 
-    board = Connect4Board("00112233445566")
+    board = Connect4Board(position="00112233445566")
     assert board.player0_bitboard == 283691315109952
     assert board.player1_bitboard == 141845657554976
     assert board.turn == 0
 
-    board = Connect4Board("66554433221100")
+    board = Connect4Board(position="66554433221100")
     assert board.player0_bitboard == 283691315109952
     assert board.player1_bitboard == 141845657554976
     assert board.turn == 0
 
-    board = Connect4Board("000000111111222222333333444444555555666666")
+    board = Connect4Board(position="000000111111222222333333444444555555666666")
+    board.print_bitboard(board.player0_bitboard)
+    board.print_bitboard(board.player1_bitboard)
     assert board.player0_bitboard == 372344851081812
     assert board.player1_bitboard == 186172425540906
     assert board.turn == 0
