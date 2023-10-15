@@ -11,6 +11,9 @@ class Connect4Board:
     Allowing for making moves, checking for terminal conditions and displaying the board.
     """
 
+    BOARD_WIDTH = 7
+    BOARD_HEIGHT = 6
+
     bitboard_index_to_2d = [
         [5, 12, 19, 26, 33, 40, 47],
         [4, 11, 18, 25, 32, 39, 46],
