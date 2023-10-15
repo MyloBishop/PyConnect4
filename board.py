@@ -11,9 +11,6 @@ class Connect4Board:
     Allowing for making moves, checking for terminal conditions and displaying the board.
     """
 
-    BOARD_WIDTH = 7
-    BOARD_HEIGHT = 6
-
     bitboard_index_to_2d = [
         [5, 12, 19, 26, 33, 40, 47],
         [4, 11, 18, 25, 32, 39, 46],
@@ -23,7 +20,9 @@ class Connect4Board:
         [0, 7, 14, 21, 28, 35, 42],
     ]
 
-    def __init__(self, position: Optional[str] = None):
+    def __init__(
+        self, width: int = 7, height: int = 6, *, position: Optional[str] = None
+    ):
         """
         .  .  .  .  .  .  .
         05 12 19 26 33 40 47  | Numbers represent the index into the full left padded string
@@ -41,14 +40,29 @@ class Connect4Board:
         Args:
             position (str, optional): 1-based column indexes to make moves in. Defaults to None.
         """
+        if width <= 3:
+            raise ValueError("Width must be greater or equal to 4.")
+        if height <= 3:
+            raise ValueError("Height must be greater or equal to 4.")
+
+        # Set the width and height of the board
+        self.width = width
+        self.height = height
 
         # Initialize the game board using bitboards.
         self.player0_bitboard = 0
         self.player1_bitboard = 0
         self.turn = 0  # 0 for player0, 1 for player1
 
+        # ! These can probably be optimised with binary operations but they are only calculated once
+
         # 1s indicate the lowest free position in each column
-        self.lowest_free_in_column = 0b1000000100000010000001000000100000010000001000000
+        # TODO: Make tests for different widths and heights ensuring bitboard is correct
+        self.bottom_mask = int(("1" + "0" * self.height) * self.width, 2)
+
+        # Mask of the top of each column
+        # TODO: Make tests for different widths and heights ensuring bitboard is correct
+        self.top_of_columns = int(("0" * self.height + "1") * self.width, 2)
 
         self.player0_piece = colored("●", "red")
         self.player1_piece = colored("●", "yellow")
@@ -64,13 +78,10 @@ class Connect4Board:
         Returns:
             bool: True if the current game state is a draw, False otherwise
         """
-        # Mask of the top of each column
-        top_of_columns = 0b0000001000000100000010000001000000100000010000001
         # If the top of each column is full mask should evaluate to 0
-        return not self.lowest_free_in_column ^ top_of_columns
+        return not self.bottom_mask ^ self.top_of_columns
 
-    @staticmethod
-    def print_bitboard(bitboard: int):
+    def print_bitboard(self, bitboard: int):
         """
         Prints the given bitboard in the terminal.
         First bit is printed on the bottom left, then the next bit above it etc.
@@ -80,12 +91,14 @@ class Connect4Board:
             bitboard (int): Binary / Integer representation of the bitboard.
         """
         lines = []
-        bitboard_str = bin(bitboard)[2:].zfill(49)
-        for _ in range(7):
-            line = bitboard_str[::7]  # Get every 7th bit
-            bitboard_str = bitboard_str[1:]
+        bitboard_str = bin(bitboard)[2:].zfill(self.width * (self.height + 1))
+        for _ in range(self.width):
+            line = bitboard_str[:: self.height + 1]  # Get next bit in row
+            bitboard_str = bitboard_str[
+                1:
+            ]  # Remove the starting bit of the slice sequence of line
             lines.append(line)
-        for line in reversed(lines):
+        for line in reversed(lines):  # Print the lines in reverse order
             print(line)
         print()
 
@@ -100,9 +113,10 @@ class Connect4Board:
         """
         for index, move in enumerate(position):
             move = int(move)
-            assert self.is_valid_move(
-                move
-            ), f"Invalid move {move} at index {index} in position {position}."
+            if not self.is_valid_move(move):
+                raise ValueError(
+                    f"Invalid move {move} at index {index} in position {position}."
+                )
             self.make_move(move)
 
     def is_valid_move(self, column: int) -> bool:
@@ -116,10 +130,11 @@ class Connect4Board:
         Returns:
             bool: True if the move is valid, False otherwise
         """
-        top_of_selected_column = 0b0000001 << (
-            (6 - column) * 7
+        # TODO: Add tests for different widths and heights ensuring bitboard is correct
+        top_of_selected_column = 0b1 << (
+            (self.height - column) * self.width
         )  # Mask of the cell at the top of the column in padded height
-        return not bool(self.lowest_free_in_column & top_of_selected_column)
+        return not bool(self.bottom_mask & top_of_selected_column)
 
     def make_move(self, column: int):
         """
@@ -129,15 +144,16 @@ class Connect4Board:
         Args:
             column (int): 0-based index of the column to make a move in
         """
-        column_mask = 0b1111110 << ((6 - column) * 7)  # Mask with all 1s in the column
+        # TODO: Really crucially needs to be tested and profiled
+        column_mask = (2 ** (self.height + 2) - 2) << (
+            (self.width - 1 - column) * (self.height + 1)
+        )  # Mask with all 1s in valid positions in the column selected
         move_mask = (
-            self.lowest_free_in_column & column_mask
+            self.bottom_mask & column_mask
         )  # 1 in bitboard in the lowest free position in the column
         new_top_cell = move_mask >> 1  # Cell above dropped piece
 
-        self.lowest_free_in_column ^= (
-            move_mask | new_top_cell
-        )  # Update the lowest free position
+        self.bottom_mask ^= move_mask | new_top_cell  # Update the lowest free position
 
         if not self.turn:  # player = 0
             self.player0_bitboard |= move_mask  # Make the move on player0's bitboard
@@ -154,17 +170,16 @@ class Connect4Board:
         Args:
             column (int): 0-based index of the column to undo the move in
         """
-        column_mask = 0b1111111 << (
-            (6 - column) * 7
+        # TODO: Really crucially needs to be tested and profiled
+        column_mask = (2 ** (self.height + 2) - 1) << (
+            (self.height - column) * (self.height + 1)
         )  # Mask with all 1s in the column including the padded top to allow undoing the top cell
         new_top_cell = (
-            self.lowest_free_in_column & column_mask
+            self.bottom_mask & column_mask
         )  # The top cell in the column before the undo
         old_move = new_top_cell << 1  # The move that is being undone
 
-        self.lowest_free_in_column ^= (
-            new_top_cell | old_move
-        )  # Update the lowest free position
+        self.bottom_mask ^= new_top_cell | old_move  # Update the lowest free position
 
         if not self.turn:  # player = 0
             self.player0_bitboard ^= old_move  # Undo the move on player0's bitboard
@@ -182,7 +197,7 @@ class Connect4Board:
             list[int]: List of 0-based indexes of columns that are valid moves
         """
         legal_moves = [
-            column for column in range(0, 7) if self.is_valid_move(column)
+            column for column in range(0, self.width) if self.is_valid_move(column)
         ]  # Loop through each column and check if it is a valid move
         return legal_moves
 
@@ -251,8 +266,12 @@ class Connect4Board:
             os.system("cls" if os.name == "nt" else "clear")
 
         # Convert bitboard to string of 0s and 1s
-        first_player_bitstr = bin(self.player0_bitboard)[2:].zfill(49)
-        second_player_bitstr = bin(self.player1_bitboard)[2:].zfill(49)
+        first_player_bitstr = bin(self.player0_bitboard)[2:].zfill(
+            self.width * (self.height + 1)
+        )
+        second_player_bitstr = bin(self.player1_bitboard)[2:].zfill(
+            self.width * (self.height + 1)
+        )
 
         # Combine both player bitboards into a single board with formatting
         combined_board = [
@@ -267,9 +286,13 @@ class Connect4Board:
         # Prints the index of every corresponding cell in the combined board
         for i, row in enumerate(Connect4Board.bitboard_index_to_2d):
             if i > 0:  # No separator on first row
-                print("\n╠" + "═══╬" * 6 + "═══╣")
+                print("\n╠" + "═══╬" * (self.width - 1) + "═══╣")
             print("║", end=" ")
             print(" ║ ".join([combined_board[cell] for cell in row]), end=" ║")
 
-        print("\n╚" + "═══╩" * 6 + "═══╝")  # Bottom border
+        print("\n╚" + "═══╩" * (self.width - 1) + "═══╝")  # Bottom border
         print("  1   2   3   4   5   6   7")  # Column numbers
+
+
+board_play = Connect4Board()
+print(board_play.is_valid_move(0))
