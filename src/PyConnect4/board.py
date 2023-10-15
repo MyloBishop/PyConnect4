@@ -40,14 +40,15 @@ class Connect4Board:
         Args:
             position (str, optional): 1-based column indexes to make moves in. Defaults to None.
         """
-        if width <= 3:
-            raise ValueError("Width must be greater or equal to 4.")
+        if width <= 3 or width > 10:  # > 10 as 10 is invalid input into position string
+            raise ValueError("Width must be between 4 and 10.")
         if height <= 3:
             raise ValueError("Height must be greater or equal to 4.")
 
         # Set the width and height of the board
         self.width = width
         self.height = height
+        self.padded_height = height + 1  # Height of the board with padding
 
         # Initialize the game board using bitboards.
         self.player0_bitboard = 0
@@ -87,12 +88,12 @@ class Connect4Board:
             bitboard (int): Binary / Integer representation of the bitboard.
         """
         lines = []
-        bitboard_str = bin(bitboard)[2:].zfill(self.width * (self.height + 1))
+        bitboard_str = bin(bitboard)[2:].zfill(self.width * self.padded_height)
         for _ in range(self.width):
-            line = bitboard_str[:: self.height + 1]  # Get next bit in row
+            line = bitboard_str[:: self.padded_height]  # Get next bit in row
             bitboard_str = bitboard_str[
                 1:
-            ]  # Remove the starting bit of the slice sequence of line
+            ]  # Remove the starting bit of the slice sequence of the line
             lines.append(line)
         for line in reversed(lines):  # Print the lines in reverse order
             print(line)
@@ -128,7 +129,7 @@ class Connect4Board:
         """
         # TODO: Add tests for different widths and heights ensuring bitboard is correct
         top_of_selected_column = 0b1 << (
-            (self.height - column) * self.width
+            (self.width - column - 1) * (self.padded_height)
         )  # Mask of the cell at the top of the column in padded height
         return not bool(self.bottom_mask & top_of_selected_column)
 
@@ -140,10 +141,9 @@ class Connect4Board:
         Args:
             column (int): 0-based index of the column to make a move in
         """
-        # TODO: Really crucially needs to be tested and profiled
-        column_mask = (2 ** (self.height + 2) - 2) << (
-            (self.width - 1 - column) * (self.height + 1)
-        )  # Mask with all 1s in valid positions in the column selected
+        column_mask = 2**self.padded_height - 2 << (
+            (self.width - column - 1) * self.padded_height
+        )  # Mask with all 1s in the column
         move_mask = (
             self.bottom_mask & column_mask
         )  # 1 in bitboard in the lowest free position in the column
@@ -167,8 +167,8 @@ class Connect4Board:
             column (int): 0-based index of the column to undo the move in
         """
         # TODO: Really crucially needs to be tested and profiled
-        column_mask = (2 ** (self.height + 2) - 1) << (
-            (self.height - column) * (self.height + 1)
+        column_mask = 2**self.padded_height - 1 << (
+            (self.width - column - 1) * self.padded_height
         )  # Mask with all 1s in the column including the padded top to allow undoing the top cell
         new_top_cell = (
             self.bottom_mask & column_mask
@@ -263,10 +263,10 @@ class Connect4Board:
 
         # Convert bitboard to string of 0s and 1s
         first_player_bitstr = bin(self.player0_bitboard)[2:].zfill(
-            self.width * (self.height + 1)
+            self.width * self.padded_height
         )
         second_player_bitstr = bin(self.player1_bitboard)[2:].zfill(
-            self.width * (self.height + 1)
+            self.width * self.padded_height
         )
 
         # Combine both player bitboards into a single board with formatting
@@ -277,7 +277,7 @@ class Connect4Board:
             for p, a in zip(first_player_bitstr, second_player_bitstr)
         ]
 
-        print("╔" + "═══╦" * 6 + "═══╗")  # Top border
+        print("╔" + "═══╦" * (self.width - 1) + "═══╗")  # Top border
 
         # Prints the index of every corresponding cell in the combined board
         for i, row in enumerate(Connect4Board.bitboard_index_to_2d):
