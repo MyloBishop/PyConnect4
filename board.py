@@ -1,5 +1,6 @@
 """Allow for clearing the terminal and checking os type."""
 import os
+from typing import Optional
 
 from termcolor import colored
 
@@ -19,7 +20,7 @@ class Connect4Board:
         [0, 7, 14, 21, 28, 35, 42],
     ]
 
-    def __init__(self, position: str = None):
+    def __init__(self, position: Optional[str] = None):
         """
         .  .  .  .  .  .  .
         05 12 19 26 33 40 47  | Numbers represent the index into the full left padded string
@@ -95,6 +96,7 @@ class Connect4Board:
             position (str): Sting of numbers representing column indexes to make moves in
         """
         for index, move in enumerate(position):
+            move = int(move)
             assert self.is_valid_move(
                 move
             ), f"Invalid move {move} at index {index} in position {position}."
