@@ -177,7 +177,7 @@ class Connect4Board:
 
         self.bottom_mask ^= new_top_cell | old_move  # Update the lowest free position
 
-        if not self.turn:  # player = 0
+        if self.turn:  # player = 0
             self.player0_bitboard ^= old_move  # Undo the move on player0's bitboard
         else:  # player = 1
             self.player1_bitboard ^= old_move  # Undo the move on player1's bitboard

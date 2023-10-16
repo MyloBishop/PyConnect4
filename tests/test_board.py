@@ -49,3 +49,38 @@ def test_setups():
     assert board.player0_bitboard == 984000
     assert board.player1_bitboard == 30750
     assert board.turn == 0
+
+
+def test_undo():
+    # Test for 6x7 board
+    board1 = Connect4Board(6, 7, position="012345543210")
+    board2 = Connect4Board(6, 7, position="01234554321")
+    board1.undo_move(0)
+    assert board1.player0_bitboard == board2.player0_bitboard
+    assert board1.player1_bitboard == board2.player1_bitboard
+    assert board1.turn == board2.turn
+
+    # Test for 8x8 board
+    board1 = Connect4Board(8, 8, position="012345543217")
+    board2 = Connect4Board(8, 8, position="01234554321")
+    board1.undo_move(7)
+    assert board1.player0_bitboard == board2.player0_bitboard
+    assert board1.player1_bitboard == board2.player1_bitboard
+    assert board1.turn == board2.turn
+
+    # Test for 4x4 board
+    board1 = Connect4Board(4, 4, position="0123012301230123")
+    board2 = Connect4Board(4, 4, position="012301230123012")
+    board1.undo_move(3)
+    assert board1.player0_bitboard == board2.player0_bitboard
+    assert board1.player1_bitboard == board2.player1_bitboard
+    assert board1.turn == board2.turn
+
+    # Test for 10x10 board, double undo
+    board1 = Connect4Board(10, 10, position="01234567890")
+    board2 = Connect4Board(10, 10, position="012345678")
+    board1.undo_move(0)
+    board1.undo_move(9)
+    assert board1.player0_bitboard == board2.player0_bitboard
+    assert board1.player1_bitboard == board2.player1_bitboard
+    assert board1.turn == board2.turn
