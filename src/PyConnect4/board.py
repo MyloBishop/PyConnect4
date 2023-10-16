@@ -288,7 +288,3 @@ class Connect4Board:
 
         print("\n╚" + "═══╩" * (self.width - 1) + "═══╝")  # Bottom border
         print("  1   2   3   4   5   6   7")  # Column numbers
-
-
-board_play = Connect4Board()
-print(board_play.is_valid_move(0))
