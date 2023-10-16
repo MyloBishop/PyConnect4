@@ -1,6 +1,6 @@
 """Allow for clearing the terminal and checking os type."""
 import os
-from typing import Optional
+from typing import List, Optional
 
 from termcolor import colored
 
@@ -184,7 +184,7 @@ class Connect4Board:
 
         self.turn = self.turn ^ 1  # Revert turn to the player who made the move
 
-    def get_legal_moves(self) -> list[int]:
+    def get_legal_moves(self) -> List[int]:
         """
         Returns a list of valid moves for the current player.
         By checking if each possible column is a valid move.
