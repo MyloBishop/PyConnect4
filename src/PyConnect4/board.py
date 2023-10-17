@@ -193,16 +193,18 @@ class Connect4Board:
 
         # If a column is full, there is a bit at the top of the column in both masks
         full_columns_bitboard = self.bottom_mask & self.top_of_columns
-        if (
-            not full_columns_bitboard
-        ):  # If there are no full columns, return all columns
-            return legal_moves
 
-        # Convert bitboard to column locations without for loop
+        if not full_columns_bitboard:  # No full columns
+            return legal_moves  # so all columns are valid
+
+        # Efficiently convert the bitboard to a list of non-full columns indexes
         legal_moves = list(
             filter(
                 lambda x: not full_columns_bitboard
-                & 0b1 << ((self.width - x - 1) * self.padded_height),
+                & 0b1
+                << (
+                    (self.width - x - 1) * self.padded_height
+                ),  # Shift a test bit to top of column
                 legal_moves,
             )
         )
