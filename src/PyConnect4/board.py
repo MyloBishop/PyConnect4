@@ -53,7 +53,6 @@ class Connect4Board:
         self.player1_bitboard = 0
         self.turn = 0  # 0 for player0, 1 for player1
 
-        # ! These can probably be optimised with binary operations but they are only calculated once
         # 1s indicate the lowest free position in each column
         self.bottom_mask = int(("1" + "0" * self.height) * self.width, 2)
         # Mask of the top of each column
@@ -73,7 +72,7 @@ class Connect4Board:
         Returns:
             bool: True if the current game state is a draw, False otherwise
         """
-        # If the top of each column is full mask should evaluate to 0
+        # If the top of each column is full, mask should evaluate to 0
         return not self.bottom_mask ^ self.top_of_columns
 
     def print_bitboard(self, bitboard: int):
@@ -164,7 +163,6 @@ class Connect4Board:
         Args:
             column (int): 0-based index of the column to undo the move in
         """
-        # TODO: Really crucially needs to be tested and profiled
         column_mask = 2**self.padded_height - 1 << (
             (self.width - column - 1) * self.padded_height
         )  # Mask with all 1s in the column including the padded top to allow undoing the top cell
@@ -278,7 +276,7 @@ class Connect4Board:
         print("╔" + "═══╦" * (self.width - 1) + "═══╗")  # Top border
 
         # Prints the index of every corresponding cell in the combined board
-        for i, row in enumerate(Connect4Board.bitboard_index_to_2d):
+        for i, row in enumerate(self.bitboard_index_to_2d):
             if i > 0:  # No separator on first row
                 print("\n╠" + "═══╬" * (self.width - 1) + "═══╣")
             print("║", end=" ")
