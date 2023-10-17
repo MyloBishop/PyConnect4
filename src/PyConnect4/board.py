@@ -125,7 +125,6 @@ class Connect4Board:
         Returns:
             bool: True if the move is valid, False otherwise
         """
-        # TODO: Add tests for different widths and heights ensuring bitboard is correct
         top_of_selected_column = 0b1 << (
             (self.width - column - 1) * (self.padded_height)
         )  # Mask of the cell at the top of the column in padded height
@@ -189,9 +188,33 @@ class Connect4Board:
         Returns:
             list[int]: List of 0-based indexes of columns that are valid moves
         """
+        # ! Slowest part of the program, could optimise
+        # ? Maybe by binary operation with bottom_mask and top_of_columns
+        # ? Or by caching moves that are invalid (could cause issues with undo_move)
+
+        legal_moves = list(range(self.width))
+
+        # If a column is full, there is a bit at the top of the column in both masks
+        full_columns_bitboard = self.bottom_mask & self.top_of_columns
+        if (
+            not full_columns_bitboard
+        ):  # If there are no full columns, return all columns
+            return legal_moves
+
+        # Convert bitboard to column locations without for loop
+        legal_moves_test = list(
+            filter(
+                lambda x: not full_columns_bitboard
+                & 0b1 << ((self.width - x - 1) * self.padded_height),
+                legal_moves,
+            )
+        )
+
         legal_moves = [
             column for column in range(0, self.width) if self.is_valid_move(column)
         ]  # Loop through each column and check if it is a valid move
+
+        assert legal_moves == legal_moves_test, "Legal moves are not the same"
         return legal_moves
 
     def is_win(self, player: int) -> bool:
