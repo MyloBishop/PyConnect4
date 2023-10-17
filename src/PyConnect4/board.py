@@ -188,7 +188,6 @@ class Connect4Board:
         Returns:
             list[int]: List of 0-based indexes of columns that are valid moves
         """
-
         legal_moves = list(range(self.width))
 
         # If a column is full, there is a bit at the top of the column in both masks
@@ -241,18 +240,18 @@ class Connect4Board:
             board = self.player1_bitboard
 
         # Check for four-in-a-row in the diagonal direction (top-left to bottom-right)
-        diagonal_mask = board & (board >> 7)
-        if diagonal_mask & (diagonal_mask >> 2 * 7):
+        diagonal_mask = board & (board >> self.padded_height)
+        if diagonal_mask & (diagonal_mask >> 2 * self.padded_height):
             return True
 
         # Check for four-in-a-row in the horizontal direction
-        horizontal_mask = board & (board >> 8)
-        if horizontal_mask & (horizontal_mask >> 2 * 8):
+        horizontal_mask = board & (board >> (self.padded_height + 1))
+        if horizontal_mask & (horizontal_mask >> 2 * (self.padded_height + 1)):
             return True
 
         # Check for four-in-a-row in the diagonal direction (top-right to bottom-left)
-        anti_diagonal_mask = board & (board >> 9)
-        if anti_diagonal_mask & (anti_diagonal_mask >> 2 * 9):
+        anti_diagonal_mask = board & (board >> (self.padded_height + 2))
+        if anti_diagonal_mask & (anti_diagonal_mask >> 2 * (self.padded_height + 2)):
             return True
 
         # Check for four-in-a-row in the vertical direction
