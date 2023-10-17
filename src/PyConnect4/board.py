@@ -200,10 +200,10 @@ class Connect4Board:
         # Efficiently convert the bitboard to a list of non-full columns indexes
         legal_moves = list(
             filter(
-                lambda x: not full_columns_bitboard
+                lambda column: not full_columns_bitboard
                 & 0b1
                 << (
-                    (self.width - x - 1) * self.padded_height
+                    (self.width - column - 1) * self.padded_height
                 ),  # Shift a test bit to top of column
                 legal_moves,
             )
