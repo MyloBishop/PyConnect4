@@ -11,6 +11,9 @@ class Connect4Board:
     Allowing for making moves, checking for terminal conditions and displaying the board.
     """
 
+    # pylint: disable=too-many-instance-attributes
+    # Nine is reasonable in this case.
+
     def __init__(
         self, width: int = 7, height: int = 6, *, position: Optional[str] = None
     ):
@@ -31,6 +34,7 @@ class Connect4Board:
         Args:
             position (str, optional): 1-based column indexes to make moves in. Defaults to None.
         """
+
         if width <= 3 or width > 10:  # > 10 as 10 is invalid input into position string
             raise ValueError("Width must be between 4 and 10.")
         if height <= 3:
@@ -43,6 +47,11 @@ class Connect4Board:
             for count in range(height)
         ]
 
+        # 1s indicate the lowest free position in each column
+        self.bottom_mask = int(("1" + "0" * height) * width, 2)
+        # Mask of the top of each column
+        self.top_of_columns = int(("0" * height + "1") * width, 2)
+
         # Set the width and height of the board
         self.width = width
         self.height = height
@@ -52,14 +61,6 @@ class Connect4Board:
         self.player0_bitboard = 0
         self.player1_bitboard = 0
         self.turn = 0  # 0 for player0, 1 for player1
-
-        # 1s indicate the lowest free position in each column
-        self.bottom_mask = int(("1" + "0" * self.height) * self.width, 2)
-        # Mask of the top of each column
-        self.top_of_columns = int(("0" * self.height + "1") * self.width, 2)
-
-        self.player0_piece = colored("●", "red")
-        self.player1_piece = colored("●", "yellow")
 
         if position:
             self.setup_position(position)
@@ -267,9 +268,9 @@ class Connect4Board:
 
         # Combine both player bitboards into a single board with formatting
         combined_board = [
-            self.player0_piece
+            colored("●", "red")
             if p == "1"
-            else (self.player1_piece if a == "1" else " ")
+            else (colored("●", "yellow") if a == "1" else " ")
             for p, a in zip(first_player_bitstr, second_player_bitstr)
         ]
 
