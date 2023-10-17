@@ -1,3 +1,5 @@
+import pytest
+
 from PyConnect4 import Connect4Board
 
 
@@ -84,3 +86,33 @@ def test_undo():
     assert board1.player0_bitboard == board2.player0_bitboard
     assert board1.player1_bitboard == board2.player1_bitboard
     assert board1.turn == board2.turn
+
+
+def test_invalid_setup():
+    # Test invalid position for a 6x7 board
+    with pytest.raises(ValueError):
+        Connect4Board(6, 7, position="01234560")
+
+    # Test invalid position for a 8x8 board
+    with pytest.raises(ValueError):
+        Connect4Board(8, 8, position="01234567842")
+
+    # Test invalid position for a 4x4 board
+    with pytest.raises(ValueError):
+        Connect4Board(4, 4, position="0123450")
+
+    # Test invalid 10x10 board
+    with pytest.raises(ValueError):
+        Connect4Board(10, 10, position="0123456789")
+
+    # Test another invalid position for a 6x7 board
+    with pytest.raises(ValueError):
+        Connect4Board(6, 7, position="01234560")
+
+    # Test another invalid position for a 8x8 board
+    with pytest.raises(ValueError):
+        Connect4Board(8, 8, position="012345678421")
+
+    # Test another invalid position for a 4x4 board
+    with pytest.raises(ValueError):
+        Connect4Board(4, 4, position="01234501")
