@@ -35,9 +35,7 @@ class Connect4Board:
             position (str, optional): 1-based column indexes to make moves in. Defaults to None.
         """
 
-        if (
-            width <= 3 or width >= 10
-        ):  # > 10 as 10 is invalid input into position string
+        if width <= 3 or width > 10:  # > 10 as 10 is invalid input into position string
             raise ValueError("Width must be between 4 and 10.")
         if height <= 3:
             raise ValueError("Height must be greater or equal to 4.")
