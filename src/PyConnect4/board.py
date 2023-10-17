@@ -301,4 +301,9 @@ class Connect4Board:
             print(" ║ ".join([combined_board[cell] for cell in row]), end=" ║")
 
         print("\n╚" + "═══╩" * (self.width - 1) + "═══╝")  # Bottom border
-        print("  1   2   3   4   5   6   7")  # Column numbers
+        print(
+            " "
+            + "  ".join(
+                f"{i:2d}" for i in range(1, self.width + 1)
+            )  # Dynamic column numbers
+        )
