@@ -44,7 +44,7 @@ class Connect4Board:
 
         self.bitboard_index_to_2d = [
             list(range(count, width * padded_height, padded_height))
-            for count in range(height)
+            for count in reversed(range(height))
         ]
 
         # 1s indicate the lowest free position in each column
