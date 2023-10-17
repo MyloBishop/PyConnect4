@@ -183,7 +183,8 @@ class Connect4Board:
     def get_legal_moves(self) -> List[int]:
         """
         Returns a list of valid moves for the current player.
-        By checking if each possible column is a valid move.
+        By filtering out moves where there is a bit at the top of the column
+        and a bit in the bottom mask at the same position.
 
         Returns:
             list[int]: List of 0-based indexes of columns that are valid moves
