@@ -95,7 +95,7 @@ def test_invalid_setup():
 
     # Test invalid position for a 8x8 board
     with pytest.raises(ValueError):
-        Connect4Board(8, 8, position="01234567842")
+        Connect4Board(8, 8, position="01294567842")
 
     # Test invalid position for a 4x4 board
     with pytest.raises(ValueError):
@@ -115,4 +115,10 @@ def test_invalid_setup():
 
     # Test another invalid position for a 4x4 board
     with pytest.raises(ValueError):
-        Connect4Board(4, 4, position="01234501")
+        Connect4Board(4, 4, position="01234701")
+
+    with pytest.raises(ValueError):
+        Connect4Board(position="0000000")
+
+    with pytest.raises(ValueError):
+        Connect4Board(6, 7, position="00000000")
