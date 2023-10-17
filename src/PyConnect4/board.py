@@ -188,9 +188,6 @@ class Connect4Board:
         Returns:
             list[int]: List of 0-based indexes of columns that are valid moves
         """
-        # ! Slowest part of the program, could optimise
-        # ? Maybe by binary operation with bottom_mask and top_of_columns
-        # ? Or by caching moves that are invalid (could cause issues with undo_move)
 
         legal_moves = list(range(self.width))
 
@@ -202,7 +199,7 @@ class Connect4Board:
             return legal_moves
 
         # Convert bitboard to column locations without for loop
-        legal_moves_test = list(
+        legal_moves = list(
             filter(
                 lambda x: not full_columns_bitboard
                 & 0b1 << ((self.width - x - 1) * self.padded_height),
@@ -210,11 +207,6 @@ class Connect4Board:
             )
         )
 
-        legal_moves = [
-            column for column in range(0, self.width) if self.is_valid_move(column)
-        ]  # Loop through each column and check if it is a valid move
-
-        assert legal_moves == legal_moves_test, "Legal moves are not the same"
         return legal_moves
 
     def is_win(self, player: int) -> bool:
