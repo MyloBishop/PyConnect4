@@ -101,9 +101,9 @@ def test_invalid_setup():
     with pytest.raises(ValueError):
         Connect4Board(4, 4, position="0123450")
 
-    # Test invalid 10x10 board
+    # Test invalid 11x11 board
     with pytest.raises(ValueError):
-        Connect4Board(10, 10, position="0123456789")
+        Connect4Board(11, 11, position="0123456789")
 
     # Test another invalid position for a 6x7 board
     with pytest.raises(ValueError):
