@@ -11,15 +11,6 @@ class Connect4Board:
     Allowing for making moves, checking for terminal conditions and displaying the board.
     """
 
-    bitboard_index_to_2d = [
-        [5, 12, 19, 26, 33, 40, 47],
-        [4, 11, 18, 25, 32, 39, 46],
-        [3, 10, 17, 24, 31, 38, 45],
-        [2, 9, 16, 23, 30, 37, 44],
-        [1, 8, 15, 22, 29, 36, 43],
-        [0, 7, 14, 21, 28, 35, 42],
-    ]
-
     def __init__(
         self, width: int = 7, height: int = 6, *, position: Optional[str] = None
     ):
@@ -45,10 +36,17 @@ class Connect4Board:
         if height <= 3:
             raise ValueError("Height must be greater or equal to 4.")
 
+        padded_height = height + 1  # Height of the board with padding
+
+        self.bitboard_index_to_2d = [
+            list(range(count, width * padded_height, padded_height))
+            for count in range(height)
+        ]
+
         # Set the width and height of the board
         self.width = width
         self.height = height
-        self.padded_height = height + 1  # Height of the board with padding
+        self.padded_height = padded_height
 
         # Initialize the game board using bitboards.
         self.player0_bitboard = 0
