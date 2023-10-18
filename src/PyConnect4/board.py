@@ -65,6 +65,13 @@ class Connect4Board:
         if position:
             self.setup_position(position)
 
+    def __eq__(self, other):
+        return (
+            self.player0_bitboard == other.player0_bitboard
+            and self.player1_bitboard == other.player1_bitboard
+            and self.turn == other.turn
+        )
+
     @property
     def is_draw(self) -> bool:
         """
