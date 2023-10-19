@@ -16,7 +16,6 @@ def player_move(board):
 def main():
     board = Board()
 
-    print("Welcome to Connect 4! You are '●' and the AI is '○'.")
     board.display()
 
     while not board.is_terminal:
@@ -26,7 +25,7 @@ def main():
         else:
             # AI's turn
             print("AI is thinking...")
-            _, column = negamax(board, depth=10)  # Adjust the depth as needed
+            _, column = negamax(board, depth=11)  # Adjust the depth as needed
             print(f"AI chooses column {column + 1}")
 
         board.make_move(column)
