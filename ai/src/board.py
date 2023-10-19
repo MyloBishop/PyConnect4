@@ -5,7 +5,7 @@ from typing import List, Optional
 from termcolor import colored
 
 
-class Connect4Board:
+class Board:
     """
     Represents the game board for Connect 4.
     Allowing for making moves, checking for terminal conditions and displaying the board.
@@ -83,6 +83,16 @@ class Connect4Board:
         # If the top of each column is full, mask evaluates to 0
         return not self.bottom_mask ^ self.top_of_columns
 
+    @property
+    def is_terminal(self) -> bool:
+        """
+        Check if the current game state is a terminal state.
+
+        Returns:
+            bool: True if the current game state is a terminal state, False otherwise
+        """
+        return self.is_win(0) or self.is_win(1) or self.is_draw
+
     def print_bitboard(self, bitboard: int):
         """
         Prints the given bitboard in the terminal.
@@ -114,7 +124,7 @@ class Connect4Board:
             position (str): Sting of numbers representing column indexes to make moves in
         """
         for index, move in enumerate(position):
-            intmove = int(move)
+            intmove = int(move) - 1
             if not self.is_valid_move(intmove):
                 raise ValueError(
                     f"Invalid move {move} at index {index} in position {position}."
@@ -250,18 +260,18 @@ class Connect4Board:
             board = self.player1_bitboard
 
         # Check for four-in-a-row in the diagonal direction (top-left to bottom-right)
-        diagonal_mask = board & (board >> self.padded_height)
-        if diagonal_mask & (diagonal_mask >> 2 * self.padded_height):
+        diagonal_mask = board & (board >> self.height)
+        if diagonal_mask & (diagonal_mask >> 2 * self.height):
             return True
 
         # Check for four-in-a-row in the horizontal direction
-        horizontal_mask = board & (board >> (self.padded_height + 1))
-        if horizontal_mask & (horizontal_mask >> 2 * (self.padded_height + 1)):
+        horizontal_mask = board & (board >> (self.height + 1))
+        if horizontal_mask & (horizontal_mask >> 2 * (self.height + 1)):
             return True
 
         # Check for four-in-a-row in the diagonal direction (top-right to bottom-left)
-        anti_diagonal_mask = board & (board >> (self.padded_height + 2))
-        if anti_diagonal_mask & (anti_diagonal_mask >> 2 * (self.padded_height + 2)):
+        anti_diagonal_mask = board & (board >> (self.height + 2))
+        if anti_diagonal_mask & (anti_diagonal_mask >> 2 * (self.height + 2)):
             return True
 
         # Check for four-in-a-row in the vertical direction
