@@ -80,7 +80,7 @@ class Connect4Board:
         Returns:
             bool: True if the current game state is a draw, False otherwise
         """
-        # If the top of each column is full, mask should evaluate to 0
+        # If the top of each column is full, mask evaluates to 0
         return not self.bottom_mask ^ self.top_of_columns
 
     def print_bitboard(self, bitboard: int):
