@@ -15,7 +15,11 @@ class Board:
     # Nine is reasonable in this case.
 
     def __init__(
-        self, *, width: int = 7, height: int = 6, position: Optional[str] = None
+        self,
+        position: Optional[str] = None,
+        *,
+        width: int = 7,
+        height: int = 6,
     ):
         """
         .  .  .  .  .  .  .

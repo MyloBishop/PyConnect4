@@ -1,5 +1,5 @@
 from ai import negamax
 from board import Board
 
-board = Board(position="23163416124767223154467471272416755633")
+board = Board("32164625")
 print(negamax(board))
