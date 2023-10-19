@@ -1,6 +1,6 @@
 from math import inf
 
-from board import Board
+from .move_ordering import order_moves
 
 
 def negamax(node, depth: int = inf, alpha: int = -inf, beta: int = inf):
@@ -26,21 +26,9 @@ def negamax(node, depth: int = inf, alpha: int = -inf, beta: int = inf):
     return value, best_move
 
 
-def order_moves(moves):
-    # Center column first, then head outwards
-    center = 3
-    moves.sort(key=lambda move: abs(move - center))
-    return moves
-
-
 def score(node):
     if node.is_win(0):
         return 22 - node.player0_bitboard.bit_count()
     if node.is_win(1):
         return node.player1_bitboard.bit_count() - 22
     return 0  # Draw
-
-
-root = Board(position="11233566724171221527127745")
-root.display()
-print(negamax(root))
