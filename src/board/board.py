@@ -294,6 +294,24 @@ class Board:
 
         return False
 
+    def score(self) -> int:
+        """
+        Return the score of the current position.
+
+        We define a score for any non final position reflecting the
+        outcome of the game for the player to play, considering that
+        both players play perfectly and try to win as soon as possible
+        or lose as late as possible.
+
+        Returns:
+            int: Score of the current position
+        """
+        if self.is_win(player=0):
+            return 22 - self.player0_bitboard.bit_count()
+        if self.is_win(player=1):
+            return self.player1_bitboard.bit_count() - 22
+        return 0  # Draw
+
     def display(self, *, clear: bool = True):
         """
         Displays the current board state in the terminal to the user.
