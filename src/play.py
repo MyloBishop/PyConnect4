@@ -1,4 +1,4 @@
-from ai import negamax
+from ai import Negamax
 from board import Board
 
 
@@ -15,6 +15,7 @@ def player_move(board):
 
 def main():
     board = Board()
+    ai = Negamax()
 
     board.display()
 
@@ -25,7 +26,7 @@ def main():
         else:
             # AI's turn
             print("AI is thinking...")
-            _, column = negamax(board, depth=11)  # Adjust the depth as needed
+            _, column = ai.negamax(board, depth=11)  # Adjust the depth as needed
             print(f"AI chooses column {column + 1}")
 
         board.make_move(column)
