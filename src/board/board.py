@@ -69,7 +69,16 @@ class Board:
         if position:
             self.setup_position(position)
 
-    def __eq__(self, other):
+    def __eq__(self, other: "Board") -> bool:
+        """
+        Check if two boards represent the same game state.
+
+        Args:
+            other (Board): Board instance to compare to.
+
+        Returns:
+            bool: True if the boards represent the same game state, False otherwise
+        """
         return (
             self.player0_bitboard == other.player0_bitboard
             and self.player1_bitboard == other.player1_bitboard
