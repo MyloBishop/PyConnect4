@@ -3,7 +3,7 @@ from multiprocessing.pool import Pool
 
 from tqdm import tqdm
 
-from ai import negamax
+from ai import Solver
 from board import Board
 
 TIME_LIMIT_SECONDS = 300
@@ -18,8 +18,9 @@ def process_file(file_path):
 
 def process_case(case):
     position, expected_score = case
-    b = Board(position=position)
-    score, _ = negamax(b)
+    ai = Solver()
+    board = Board(position=position)
+    score, _ = ai.solve(board)
     assert score == int(expected_score)
 
 
@@ -27,10 +28,7 @@ def multiprocess_file(file_path):
     print(f"\nProcessing file {file_path}...")
     cases = process_file(file_path)
     print(f"Running {len(cases)} test cases...")
-    with Pool() as pool:
-        with tqdm(total=len(cases)) as pbar:
-            for _ in pool.imap_unordered(process_case, cases):
-                pbar.update()
+    results = list(map(process_case, tqdm(cases)))
 
 
 def main():

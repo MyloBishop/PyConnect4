@@ -86,6 +86,16 @@ class Board:
         )
 
     @property
+    def move_count(self) -> int:
+        """
+        Return the number of moves made in the current game.
+
+        Returns:
+            int: Number of moves made in the current game
+        """
+        return self.player0_bitboard.bit_count() + self.player1_bitboard.bit_count()
+
+    @property
     def is_draw(self) -> bool:
         """
         Check if the current game state is a draw.
