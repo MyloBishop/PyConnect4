@@ -14,6 +14,7 @@ class Board:
     WIDTH = 7
     HEIGHT = 6
     PADDED_HEIGHT = HEIGHT + 1
+    BITBOARD_SIZE = WIDTH * PADDED_HEIGHT
 
     # Mask of the top of each column
     TOP_OF_COLUMNS = int(("0" * HEIGHT + "1") * WIDTH, 2)
@@ -48,7 +49,7 @@ class Board:
             raise ValueError("Height must be greater or equal to 4.")
 
         self.bitboard_index_to_2d = [
-            list(range(count, Board.WIDTH * Board.PADDED_HEIGHT, Board.PADDED_HEIGHT))
+            list(range(count, Board.BITBOARD_SIZE, Board.PADDED_HEIGHT))
             for count in reversed(range(Board.HEIGHT))
         ]
 
@@ -287,7 +288,7 @@ class Board:
             bitboard (int): Binary / Integer representation of the bitboard.
         """
         lines = []
-        bitboard_str = bin(bitboard)[2:].zfill(Board.WIDTH * Board.PADDED_HEIGHT)
+        bitboard_str = bin(bitboard)[2:].zfill(Board.BITBOARD_SIZE)
         for _ in range(Board.WIDTH):
             line = bitboard_str[:: Board.PADDED_HEIGHT]  # Get next bit in row
             bitboard_str = bitboard_str[1:]  # Start at next bit
@@ -308,12 +309,8 @@ class Board:
             os.system("cls" if os.name == "nt" else "clear")
 
         # Convert bitboard to string of 0s and 1s
-        first_player_bitstr = bin(self.player0_bitboard)[2:].zfill(
-            Board.WIDTH * Board.PADDED_HEIGHT
-        )
-        second_player_bitstr = bin(self.player1_bitboard)[2:].zfill(
-            Board.WIDTH * Board.PADDED_HEIGHT
-        )
+        first_player_bitstr = bin(self.player0_bitboard)[2:].zfill(Board.BITBOARD_SIZE)
+        second_player_bitstr = bin(self.player1_bitboard)[2:].zfill(Board.BITBOARD_SIZE)
 
         # Combine both player bitboards into a single board with formatting
         combined_board = [
