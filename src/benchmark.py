@@ -1,9 +1,7 @@
 from multiprocessing import Process
-from multiprocessing.pool import Pool
 
 from tqdm import tqdm
 
-from ai import Solver
 from board import Board
 
 TIME_LIMIT_SECONDS = 300
@@ -18,9 +16,9 @@ def process_file(file_path):
 
 def process_case(case):
     position, expected_score = case
-    ai = Solver()
     board = Board(position=position)
-    score, _ = ai.solve(board)
+    # ai = Negamax()
+    # score, _ = ai.negamax(board)
     assert score == int(expected_score)
 
 
