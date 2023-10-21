@@ -290,9 +290,7 @@ class Board:
         bitboard_str = bin(bitboard)[2:].zfill(Board.WIDTH * Board.PADDED_HEIGHT)
         for _ in range(Board.WIDTH):
             line = bitboard_str[:: Board.PADDED_HEIGHT]  # Get next bit in row
-            bitboard_str = bitboard_str[
-                1:
-            ]  # Remove the starting bit of the slice sequence of the line
+            bitboard_str = bitboard_str[1:]  # Start at next bit
             lines.append(line)
         for line in reversed(lines):  # Print the lines in reverse order
             print(line)
