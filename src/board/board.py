@@ -105,7 +105,6 @@ class Board:
         """
         return int(self.position[-1]) - 1
 
-    @property
     def is_draw(self) -> bool:
         """
         Check if the current game state is a draw.
@@ -116,7 +115,6 @@ class Board:
         # If the top of each column is full, mask evaluates to 0
         return not self.bottom_mask ^ Board.TOP_OF_COLUMNS
 
-    @property
     def is_terminal(self) -> bool:
         """
         Check if the current game state is a terminal state.
