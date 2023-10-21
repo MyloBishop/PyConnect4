@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import math
-from typing import List, Optional, Type
+from typing import Optional, Type
 
 from board import Board
 
@@ -20,11 +20,11 @@ class Node:
             state (Board): The game state associated with this node.
             parent (Node, optional): The parent node. If None, this node is the root node.
         """
-        self.state: Type[Board] = state  # The game state associated with this node
-        self.parent: Optional[Type[Board]] = parent  # Parent node
-        self.children: List = []  # List of child nodes
-        self.visits: int = 0  # Number of times this node has been visited
-        self.value: int = 0  # Total value accumulated from this node
+        self.state = state  # The game state associated with this node
+        self.parent = parent  # Parent node
+        self.children = []  # List of child nodes
+        self.visits = 0  # Number of times this node has been visited
+        self.value = 0  # Total value accumulated from this node
 
     def is_fully_expanded(self) -> bool:
         """
