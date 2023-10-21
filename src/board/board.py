@@ -79,6 +79,8 @@ class Board:
         Returns:
             bool: True if the boards represent the same game state, False otherwise
         """
+        if not isinstance(other, Board):
+            return NotImplemented
         return (
             self.player0_bitboard == other.player0_bitboard
             and self.player1_bitboard == other.player1_bitboard
