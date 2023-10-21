@@ -86,6 +86,53 @@ class Board:
         """
         return int(self.position[-1]) - 1
 
+    def get_legal_moves(self) -> List[int]:
+        """
+        Returns a list of valid moves for the current player.
+        By filtering out moves where there is a bit at the top of the column
+        and a bit in the bottom mask at the same position.
+
+        Returns:
+            list[int]: List of 0-based indexes of columns that are valid moves
+        """
+        legal_moves = list(range(Board.WIDTH))
+
+        # If a column is full, there is a bit at the top of the column in both masks
+        full_columns_bitboard = self.bottom_mask & Board.TOP_OF_COLUMNS
+
+        if not full_columns_bitboard:  # No full columns
+            return legal_moves  # so all columns are valid
+
+        # Efficiently convert the bitboard to a list of non-full columns indexes
+        legal_moves = list(
+            filter(
+                lambda column: not full_columns_bitboard
+                & 0b1
+                << (
+                    (Board.WIDTH - column - 1) * Board.PADDED_HEIGHT
+                ),  # Shift a test bit to top of column
+                legal_moves,
+            )
+        )
+
+        return legal_moves
+
+    def is_valid_move(self, column: int) -> bool:
+        """
+        Check if the specified column is a valid move.
+        This is done by seeing if the lowest free position is at the "false top" of the column.
+
+        Args:
+            column (int): 0-based index of the column to make a move in
+
+        Returns:
+            bool: True if the move is valid, False otherwise
+        """
+        top_of_selected_column = 0b1 << (
+            (Board.WIDTH - column - 1) * (Board.PADDED_HEIGHT)
+        )  # Mask of the cell at the top of the column in padded Board.HEIGHT
+        return not bool(self.bottom_mask & top_of_selected_column)
+
     def is_draw(self) -> bool:
         """
         Check if the current game state is a draw.
@@ -106,26 +153,58 @@ class Board:
         """
         return bool(self.is_win(self.turn ^ 1) or self.is_draw)
 
-    def print_bitboard(self, bitboard: int):
+    def is_win(self, player: int) -> bool:
         """
-        Prints the given bitboard in the terminal.
-        First bit is printed on the bottom left, then the next bit above it etc.
-        Every column has an extra bit at the top to indicate a full column.
+        Check if the game is won for the given player.
+
+        The first operation ensures continuity along the connection.
+        Piece is "removed" before the second operation if it doesn't have a left adjacent piece.
+        The second operation checks if there are 4 pieces in a row.
+        This is done by checking if there is a piece 2 positions away from the second piece.
+        There are 4 pieces in a row if there is a 1 in the final bitboard.
+
+        This evaluation is done for each direction (horizontal, vertical, diagonal, anti-diagonal).
+
+        Example for horizontal direction:
+
+        Invalid
+        1101000 -> 0100000 -> 0000000
+
+        Valid
+        1111000 -> 0111000 -> 0001000
 
         Args:
-            bitboard (int): Binary / Integer representation of the bitboard.
+            player (int): Player to evaluate win for. 0 for player0, 1 for player1.
+
+        Returns:
+            bool: True if the game is won for the given player, False otherwise
         """
-        lines = []
-        bitboard_str = bin(bitboard)[2:].zfill(Board.WIDTH * Board.PADDED_HEIGHT)
-        for _ in range(Board.WIDTH):
-            line = bitboard_str[:: Board.PADDED_HEIGHT]  # Get next bit in row
-            bitboard_str = bitboard_str[
-                1:
-            ]  # Remove the starting bit of the slice sequence of the line
-            lines.append(line)
-        for line in reversed(lines):  # Print the lines in reverse order
-            print(line)
-        print()
+        if not player:  # player = 0
+            board = self.player0_bitboard
+        else:  # player = 1
+            board = self.player1_bitboard
+
+        # Check for four-in-a-row in the diagonal direction (top-left to bottom-right)
+        diagonal_mask = board & (board >> Board.HEIGHT)
+        if diagonal_mask & (diagonal_mask >> 2 * Board.HEIGHT):
+            return True
+
+        # Check for four-in-a-row in the horizontal direction
+        horizontal_mask = board & (board >> (Board.HEIGHT + 1))
+        if horizontal_mask & (horizontal_mask >> 2 * (Board.HEIGHT + 1)):
+            return True
+
+        # Check for four-in-a-row in the diagonal direction (top-right to bottom-left)
+        anti_diagonal_mask = board & (board >> (Board.HEIGHT + 2))
+        if anti_diagonal_mask & (anti_diagonal_mask >> 2 * (Board.HEIGHT + 2)):
+            return True
+
+        # Check for four-in-a-row in the vertical direction
+        vertical_mask = board & (board >> 1)
+        if vertical_mask & (vertical_mask >> 2):
+            return True
+
+        return False
 
     def setup_position(self, position: str):
         """
@@ -143,22 +222,6 @@ class Board:
                     f"Invalid move {move} at index {index} in position {position}."
                 )
             self.make_move(intmove)
-
-    def is_valid_move(self, column: int) -> bool:
-        """
-        Check if the specified column is a valid move.
-        This is done by seeing if the lowest free position is at the "false top" of the column.
-
-        Args:
-            column (int): 0-based index of the column to make a move in
-
-        Returns:
-            bool: True if the move is valid, False otherwise
-        """
-        top_of_selected_column = 0b1 << (
-            (Board.WIDTH - column - 1) * (Board.PADDED_HEIGHT)
-        )  # Mask of the cell at the top of the column in padded Board.HEIGHT
-        return not bool(self.bottom_mask & top_of_selected_column)
 
     def make_move(self, column: int):
         """
@@ -214,89 +277,26 @@ class Board:
         self.turn = self.turn ^ 1  # Revert turn to the player who made the move
         self.position = self.position[:-1]
 
-    def get_legal_moves(self) -> List[int]:
+    def print_bitboard(self, bitboard: int):
         """
-        Returns a list of valid moves for the current player.
-        By filtering out moves where there is a bit at the top of the column
-        and a bit in the bottom mask at the same position.
-
-        Returns:
-            list[int]: List of 0-based indexes of columns that are valid moves
-        """
-        legal_moves = list(range(Board.WIDTH))
-
-        # If a column is full, there is a bit at the top of the column in both masks
-        full_columns_bitboard = self.bottom_mask & Board.TOP_OF_COLUMNS
-
-        if not full_columns_bitboard:  # No full columns
-            return legal_moves  # so all columns are valid
-
-        # Efficiently convert the bitboard to a list of non-full columns indexes
-        legal_moves = list(
-            filter(
-                lambda column: not full_columns_bitboard
-                & 0b1
-                << (
-                    (Board.WIDTH - column - 1) * Board.PADDED_HEIGHT
-                ),  # Shift a test bit to top of column
-                legal_moves,
-            )
-        )
-
-        return legal_moves
-
-    def is_win(self, player: int) -> bool:
-        """
-        Check if the game is won for the given player.
-
-        The first operation ensures continuity along the connection.
-        Piece is "removed" before the second operation if it doesn't have a left adjacent piece.
-        The second operation checks if there are 4 pieces in a row.
-        This is done by checking if there is a piece 2 positions away from the second piece.
-        There are 4 pieces in a row if there is a 1 in the final bitboard.
-
-        This evaluation is done for each direction (horizontal, vertical, diagonal, anti-diagonal).
-
-        Example for horizontal direction:
-
-        Invalid
-        1101000 -> 0100000 -> 0000000
-
-        Valid
-        1111000 -> 0111000 -> 0001000
+        Prints the given bitboard in the terminal.
+        First bit is printed on the bottom left, then the next bit above it etc.
+        Every column has an extra bit at the top to indicate a full column.
 
         Args:
-            player (int): Player to evaluate win for. 0 for player0, 1 for player1.
-
-        Returns:
-            bool: True if the game is won for the given player, False otherwise
+            bitboard (int): Binary / Integer representation of the bitboard.
         """
-        if not player:  # player = 0
-            board = self.player0_bitboard
-        else:  # player = 1
-            board = self.player1_bitboard
-
-        # Check for four-in-a-row in the diagonal direction (top-left to bottom-right)
-        diagonal_mask = board & (board >> Board.HEIGHT)
-        if diagonal_mask & (diagonal_mask >> 2 * Board.HEIGHT):
-            return True
-
-        # Check for four-in-a-row in the horizontal direction
-        horizontal_mask = board & (board >> (Board.HEIGHT + 1))
-        if horizontal_mask & (horizontal_mask >> 2 * (Board.HEIGHT + 1)):
-            return True
-
-        # Check for four-in-a-row in the diagonal direction (top-right to bottom-left)
-        anti_diagonal_mask = board & (board >> (Board.HEIGHT + 2))
-        if anti_diagonal_mask & (anti_diagonal_mask >> 2 * (Board.HEIGHT + 2)):
-            return True
-
-        # Check for four-in-a-row in the vertical direction
-        vertical_mask = board & (board >> 1)
-        if vertical_mask & (vertical_mask >> 2):
-            return True
-
-        return False
+        lines = []
+        bitboard_str = bin(bitboard)[2:].zfill(Board.WIDTH * Board.PADDED_HEIGHT)
+        for _ in range(Board.WIDTH):
+            line = bitboard_str[:: Board.PADDED_HEIGHT]  # Get next bit in row
+            bitboard_str = bitboard_str[
+                1:
+            ]  # Remove the starting bit of the slice sequence of the line
+            lines.append(line)
+        for line in reversed(lines):  # Print the lines in reverse order
+            print(line)
+        print()
 
     def display(self, *, clear: bool = True):
         """
