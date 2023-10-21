@@ -18,6 +18,9 @@ class Board:
     HEIGHT = 6
     PADDED_HEIGHT = HEIGHT + 1
 
+    # Mask of the top of each column
+    TOP_OF_COLUMNS = int(("0" * Board.HEIGHT + "1") * Board.WIDTH, 2)
+
     def __init__(
         self,
         position: Optional[str] = None,
@@ -54,8 +57,6 @@ class Board:
 
         # 1s indicate the lowest free position in each column
         self.bottom_mask = int(("1" + "0" * Board.HEIGHT) * Board.WIDTH, 2)
-        # Mask of the top of each column
-        self.top_of_columns = int(("0" * Board.HEIGHT + "1") * Board.WIDTH, 2)
 
         # Initialize the game board using bitboards.
         self.player0_bitboard = 0
@@ -113,7 +114,7 @@ class Board:
             bool: True if the current game state is a draw, False otherwise
         """
         # If the top of each column is full, mask evaluates to 0
-        return not self.bottom_mask ^ self.top_of_columns
+        return not self.bottom_mask ^ Board.TOP_OF_COLUMNS
 
     @property
     def is_terminal(self) -> bool:
@@ -246,7 +247,7 @@ class Board:
         legal_moves = list(range(Board.WIDTH))
 
         # If a column is full, there is a bit at the top of the column in both masks
-        full_columns_bitboard = self.bottom_mask & self.top_of_columns
+        full_columns_bitboard = self.bottom_mask & Board.TOP_OF_COLUMNS
 
         if not full_columns_bitboard:  # No full columns
             return legal_moves  # so all columns are valid
