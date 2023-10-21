@@ -55,13 +55,13 @@ class Board:
             for count in reversed(range(Board.HEIGHT))
         ]
 
-        # 1s indicate the lowest free position in each column
-        self.bottom_mask = int(("1" + "0" * Board.HEIGHT) * Board.WIDTH, 2)
-
         # Initialize the game board using bitboards.
         self.player0_bitboard = 0
         self.player1_bitboard = 0
         self.turn = 0  # 0 for player0, 1 for player1
+
+        # 1s indicate the lowest free position in each column
+        self.bottom_mask = int(("1" + "0" * Board.HEIGHT) * Board.WIDTH, 2)
 
         # Keep track of game position
         self.position = position
