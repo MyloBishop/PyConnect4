@@ -114,7 +114,7 @@ class Board:
         Returns:
             bool: True if the current game state is a terminal state, False otherwise
         """
-        return self.is_win(0) or self.is_win(1) or self.is_draw
+        return self.is_win(self.turn ^ 1) or self.is_draw
 
     def print_bitboard(self, bitboard: int):
         """
