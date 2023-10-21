@@ -43,7 +43,7 @@ class Board:
 
         if (
             Board.WIDTH <= 3 or Board.WIDTH > 10
-        ):  # > 10 as 10 is invalid input into position string
+        ):  # >10 is invalid as 2+ digit columns are not representable in position string
             raise ValueError("Width must be between 4 and 10.")
         if Board.HEIGHT <= 3:
             raise ValueError("Height must be greater or equal to 4.")
