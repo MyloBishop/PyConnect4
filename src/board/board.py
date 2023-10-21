@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import os
-from typing import List, Optional, Type
+from typing import List
 
 from termcolor import colored
 
@@ -23,7 +23,7 @@ class Board:
 
     def __init__(
         self,
-        position: Optional[str] = None,
+        position: str = "",
     ):
         """
         .  .  .  .  .  .  .
@@ -40,7 +40,7 @@ class Board:
         Player 1 is the player who makes the second move.
 
         Args:
-            position (str, optional): 1-based column indexes to make moves in. Defaults to None.
+            position (str, optional): 1-based column indexes to make moves in. Defaults to "".
         """
 
         if (
@@ -68,24 +68,6 @@ class Board:
 
         if position:
             self.setup_position(position)
-
-    def __eq__(self, other: Type[Board]) -> NotImplemented | bool:
-        """
-        Check if two boards represent the same game state.
-
-        Args:
-            other (Board): Board instance to compare to.
-
-        Returns:
-            bool: True if the boards represent the same game state, False otherwise
-        """
-        if not isinstance(other, Board):
-            return NotImplemented
-        return (
-            self.player0_bitboard == other.player0_bitboard
-            and self.player1_bitboard == other.player1_bitboard
-            and self.turn == other.turn
-        )
 
     @property
     def move_count(self) -> int:
@@ -125,7 +107,7 @@ class Board:
         Returns:
             bool: True if the current game state is a terminal state, False otherwise
         """
-        return self.is_win(self.turn ^ 1) or self.is_draw
+        return bool(self.is_win(self.turn ^ 1) or self.is_draw)
 
     def print_bitboard(self, bitboard: int):
         """
