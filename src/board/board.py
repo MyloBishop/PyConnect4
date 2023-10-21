@@ -1,6 +1,8 @@
-"""Allow for clearing the terminal and checking os type."""
+"""Enable type annotations for Board class."""
+from __future__ import annotations
+
 import os
-from typing import List, Optional
+from typing import List, Optional, Type
 
 from termcolor import colored
 
@@ -11,15 +13,14 @@ class Board:
     Allowing for making moves, checking for terminal conditions and displaying the board.
     """
 
-    # pylint: disable=too-many-instance-attributes
-    # Nine is reasonable in this case.
+    # Set the width and height of the board
+    WIDTH = 7
+    HEIGHT = 6
+    PADDED_HEIGHT = HEIGHT + 1
 
     def __init__(
         self,
         position: Optional[str] = None,
-        *,
-        width: int = 7,
-        height: int = 6,
     ):
         """
         .  .  .  .  .  .  .
@@ -39,37 +40,35 @@ class Board:
             position (str, optional): 1-based column indexes to make moves in. Defaults to None.
         """
 
-        if width <= 3 or width > 10:  # > 10 as 10 is invalid input into position string
+        if (
+            Board.WIDTH <= 3 or Board.WIDTH > 10
+        ):  # > 10 as 10 is invalid input into position string
             raise ValueError("Width must be between 4 and 10.")
-        if height <= 3:
+        if Board.HEIGHT <= 3:
             raise ValueError("Height must be greater or equal to 4.")
 
-        padded_height = height + 1  # Height of the board with padding
-
         self.bitboard_index_to_2d = [
-            list(range(count, width * padded_height, padded_height))
-            for count in reversed(range(height))
+            list(range(count, Board.WIDTH * Board.PADDED_HEIGHT, Board.PADDED_HEIGHT))
+            for count in reversed(range(Board.HEIGHT))
         ]
 
         # 1s indicate the lowest free position in each column
-        self.bottom_mask = int(("1" + "0" * height) * width, 2)
+        self.bottom_mask = int(("1" + "0" * Board.HEIGHT) * Board.WIDTH, 2)
         # Mask of the top of each column
-        self.top_of_columns = int(("0" * height + "1") * width, 2)
-
-        # Set the width and height of the board
-        self.width = width
-        self.height = height
-        self.padded_height = padded_height
+        self.top_of_columns = int(("0" * Board.HEIGHT + "1") * Board.WIDTH, 2)
 
         # Initialize the game board using bitboards.
         self.player0_bitboard = 0
         self.player1_bitboard = 0
         self.turn = 0  # 0 for player0, 1 for player1
 
+        # Keep track of game position
+        self.position = position
+
         if position:
             self.setup_position(position)
 
-    def __eq__(self, other: "Board") -> bool:
+    def __eq__(self, other: Type[Board]) -> bool:
         """
         Check if two boards represent the same game state.
 
@@ -96,6 +95,16 @@ class Board:
         return self.player0_bitboard.bit_count() + self.player1_bitboard.bit_count()
 
     @property
+    def last_move(self) -> int:
+        """
+        Return the last move made in the current game.
+
+        Returns:
+            str: Last move made in the current game
+        """
+        return int(self.position[-1]) - 1
+
+    @property
     def is_draw(self) -> bool:
         """
         Check if the current game state is a draw.
@@ -110,6 +119,7 @@ class Board:
     def is_terminal(self) -> bool:
         """
         Check if the current game state is a terminal state.
+        Only checks win for the player who made the last move.
 
         Returns:
             bool: True if the current game state is a terminal state, False otherwise
@@ -126,9 +136,9 @@ class Board:
             bitboard (int): Binary / Integer representation of the bitboard.
         """
         lines = []
-        bitboard_str = bin(bitboard)[2:].zfill(self.width * self.padded_height)
-        for _ in range(self.width):
-            line = bitboard_str[:: self.padded_height]  # Get next bit in row
+        bitboard_str = bin(bitboard)[2:].zfill(Board.WIDTH * Board.PADDED_HEIGHT)
+        for _ in range(Board.WIDTH):
+            line = bitboard_str[:: Board.PADDED_HEIGHT]  # Get next bit in row
             bitboard_str = bitboard_str[
                 1:
             ]  # Remove the starting bit of the slice sequence of the line
@@ -166,8 +176,8 @@ class Board:
             bool: True if the move is valid, False otherwise
         """
         top_of_selected_column = 0b1 << (
-            (self.width - column - 1) * (self.padded_height)
-        )  # Mask of the cell at the top of the column in padded height
+            (Board.WIDTH - column - 1) * (Board.PADDED_HEIGHT)
+        )  # Mask of the cell at the top of the column in padded Board.HEIGHT
         return not bool(self.bottom_mask & top_of_selected_column)
 
     def make_move(self, column: int):
@@ -178,8 +188,8 @@ class Board:
         Args:
             column (int): 0-based index of the column to make a move in
         """
-        column_mask = 2**self.padded_height - 2 << (
-            (self.width - column - 1) * self.padded_height
+        column_mask = 2**Board.PADDED_HEIGHT - 2 << (
+            (Board.WIDTH - column - 1) * Board.PADDED_HEIGHT
         )  # Mask with all 1s in the column
         move_mask = (
             self.bottom_mask & column_mask
@@ -194,17 +204,20 @@ class Board:
             self.player1_bitboard |= move_mask  # Make the move on player1's bitboard
 
         self.turn = self.turn ^ 1  # Switch turns
+        self.position = self.position + str(column + 1)
 
-    def undo_move(self, column: int):
+    def undo_move(self):
         """
-        Undoes the last move made by a player in the specified column.
+        Undoes the last move made by a player
         Bitwise operations are used to update the bitboards and the lowest free position.
 
         Args:
             column (int): 0-based index of the column to undo the move in
         """
-        column_mask = 2**self.padded_height - 1 << (
-            (self.width - column - 1) * self.padded_height
+        column = int(self.position[-1] - 1)
+
+        column_mask = 2**Board.PADDED_HEIGHT - 1 << (
+            (Board.WIDTH - column - 1) * Board.PADDED_HEIGHT
         )  # Mask with all 1s in the column including the padded top to allow undoing the top cell
         new_top_cell = (
             self.bottom_mask & column_mask
@@ -219,6 +232,7 @@ class Board:
             self.player1_bitboard ^= old_move  # Undo the move on player1's bitboard
 
         self.turn = self.turn ^ 1  # Revert turn to the player who made the move
+        self.position = self.position[:-1]
 
     def get_legal_moves(self) -> List[int]:
         """
@@ -229,7 +243,7 @@ class Board:
         Returns:
             list[int]: List of 0-based indexes of columns that are valid moves
         """
-        legal_moves = list(range(self.width))
+        legal_moves = list(range(Board.WIDTH))
 
         # If a column is full, there is a bit at the top of the column in both masks
         full_columns_bitboard = self.bottom_mask & self.top_of_columns
@@ -243,7 +257,7 @@ class Board:
                 lambda column: not full_columns_bitboard
                 & 0b1
                 << (
-                    (self.width - column - 1) * self.padded_height
+                    (Board.WIDTH - column - 1) * Board.PADDED_HEIGHT
                 ),  # Shift a test bit to top of column
                 legal_moves,
             )
@@ -283,18 +297,18 @@ class Board:
             board = self.player1_bitboard
 
         # Check for four-in-a-row in the diagonal direction (top-left to bottom-right)
-        diagonal_mask = board & (board >> self.height)
-        if diagonal_mask & (diagonal_mask >> 2 * self.height):
+        diagonal_mask = board & (board >> Board.HEIGHT)
+        if diagonal_mask & (diagonal_mask >> 2 * Board.HEIGHT):
             return True
 
         # Check for four-in-a-row in the horizontal direction
-        horizontal_mask = board & (board >> (self.height + 1))
-        if horizontal_mask & (horizontal_mask >> 2 * (self.height + 1)):
+        horizontal_mask = board & (board >> (Board.HEIGHT + 1))
+        if horizontal_mask & (horizontal_mask >> 2 * (Board.HEIGHT + 1)):
             return True
 
         # Check for four-in-a-row in the diagonal direction (top-right to bottom-left)
-        anti_diagonal_mask = board & (board >> (self.height + 2))
-        if anti_diagonal_mask & (anti_diagonal_mask >> 2 * (self.height + 2)):
+        anti_diagonal_mask = board & (board >> (Board.HEIGHT + 2))
+        if anti_diagonal_mask & (anti_diagonal_mask >> 2 * (Board.HEIGHT + 2)):
             return True
 
         # Check for four-in-a-row in the vertical direction
@@ -317,10 +331,10 @@ class Board:
 
         # Convert bitboard to string of 0s and 1s
         first_player_bitstr = bin(self.player0_bitboard)[2:].zfill(
-            self.width * self.padded_height
+            Board.WIDTH * Board.PADDED_HEIGHT
         )
         second_player_bitstr = bin(self.player1_bitboard)[2:].zfill(
-            self.width * self.padded_height
+            Board.WIDTH * Board.PADDED_HEIGHT
         )
 
         # Combine both player bitboards into a single board with formatting
@@ -331,19 +345,19 @@ class Board:
             for p, a in zip(first_player_bitstr, second_player_bitstr)
         ]
 
-        print("╔" + "═══╦" * (self.width - 1) + "═══╗")  # Top border
+        print("╔" + "═══╦" * (Board.WIDTH - 1) + "═══╗")  # Top border
 
         # Prints the index of every corresponding cell in the combined board
         for i, row in enumerate(self.bitboard_index_to_2d):
             if i > 0:  # No separator on first row
-                print("\n╠" + "═══╬" * (self.width - 1) + "═══╣")
+                print("\n╠" + "═══╬" * (Board.WIDTH - 1) + "═══╣")
             print("║", end=" ")
             print(" ║ ".join([combined_board[cell] for cell in row]), end=" ║")
 
-        print("\n╚" + "═══╩" * (self.width - 1) + "═══╝")  # Bottom border
+        print("\n╚" + "═══╩" * (Board.WIDTH - 1) + "═══╝")  # Bottom border
         print(
             " "
             + "  ".join(
-                f"{i:2d}" for i in range(1, self.width + 1)
+                f"{i:2d}" for i in range(1, Board.WIDTH + 1)
             )  # Dynamic column numbers
         )
