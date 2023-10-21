@@ -26,9 +26,9 @@ class MonteCarloTreeSearch:
             exploration_weight (float): The UCT exploration weight.
             iterations (int): The number of iterations (simulations) to run.
         """
-        self.root = Node(root_state)
-        self.exploration_weight = exploration_weight
-        self.iterations = iterations
+        self.root: Node = Node(root_state)
+        self.exploration_weight: float = exploration_weight
+        self.iterations: int = iterations
 
     def search(self):
         """
@@ -46,8 +46,8 @@ class MonteCarloTreeSearch:
         Returns:
             Node: The selected node.
         """
-        node = self.root
-        while not node.state.is_terminal:
+        node: Type[Node] = self.root
+        while not node.state.is_terminal():
             if not node.is_fully_expanded():
                 # Expand if not all children have been created
                 child = self.expand(node)
