@@ -48,6 +48,7 @@ class Board:
         if Board.HEIGHT <= 3:
             raise ValueError("Height must be greater or equal to 4.")
 
+        # Bitboard to 2D index mapping (as seen above)
         self.bitboard_index_to_2d = [
             list(range(count, Board.BITBOARD_SIZE, Board.PADDED_HEIGHT))
             for count in reversed(range(Board.HEIGHT))
