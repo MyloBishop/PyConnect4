@@ -19,7 +19,7 @@ class Board:
     PADDED_HEIGHT = HEIGHT + 1
 
     # Mask of the top of each column
-    TOP_OF_COLUMNS = int(("0" * Board.HEIGHT + "1") * Board.WIDTH, 2)
+    TOP_OF_COLUMNS = int(("0" * HEIGHT + "1") * WIDTH, 2)
 
     def __init__(
         self,
