@@ -69,7 +69,7 @@ class Board:
         if position:
             self.setup_position(position)
 
-    def __eq__(self, other: Type[Board]) -> bool:
+    def __eq__(self, other: Type[Board]) -> NotImplemented | bool:
         """
         Check if two boards represent the same game state.
 
