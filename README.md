@@ -54,21 +54,21 @@ board = Board(position)
 
 - `get_legal_moves()`: Returns a list of valid moves for the current player.
 
--`is_valid_move(column)`: Checks if the specified column is a valid move.
+- `is_valid_move(column)`: Checks if the specified column is a valid move.
 
--`is_draw()`: Checks if the current game state is a draw.
+- `is_draw()`: Checks if the current game state is a draw.
 
--`is_terminal()`: Checks if the current game state is a terminal state.
+- `is_terminal()`: Checks if the current game state is a terminal state.
 
--`is_win(player)`: Checks if the game is won for the given player.
+- `is_win(player)`: Checks if the game is won for the given player.
 
--`make_move(column)`: Makes a move in the specified column.
+- `make_move(column)`: Makes a move in the specified column.
 
--`undo_move()`: Undoes the last move made by a player.
+- `undo_move()`: Undoes the last move made by a player.
 
--`score()`: Returns the [score](http://blog.gamesolver.org/solving-connect-four/02-test-protocol/#:~:text=Position%E2%80%99s%20score,of%20your%20score.) of the current position
+- `score()`: Returns the [score](http://blog.gamesolver.org/solving-connect-four/02-test-protocol/#:~:text=Position%E2%80%99s%20score,of%20your%20score.) of the current position
 
--`display()`: Displays the current board state in the terminal. By default clears the terminal however can be disabled by calling with clear=False.
+- `display()`: Displays the current board state in the terminal. By default clears the terminal however can be disabled by calling with clear=False.
 
 Example usage:
 
