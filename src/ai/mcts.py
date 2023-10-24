@@ -3,8 +3,9 @@ import random
 from copy import deepcopy
 from typing import Type
 
-from ai import Node
 from board import Board
+
+from .node import Node
 
 
 class MonteCarloTreeSearch:
@@ -39,7 +40,7 @@ class MonteCarloTreeSearch:
             result = self.simulate(node_to_expand)
             self.backpropagate(node_to_expand, result)
 
-    def select(self):
+    def select(self) -> Type[Node]:
         """
         Selection step: Traverse the tree to select a node for expansion.
 
@@ -55,7 +56,7 @@ class MonteCarloTreeSearch:
             node = node.select_child(self.exploration_weight)
         return node
 
-    def expand(self, parent_node):
+    def expand(self, parent_node) -> Type[Node]:
         """
         Expansion step: Create and add a child node to the tree.
 
@@ -73,7 +74,7 @@ class MonteCarloTreeSearch:
         parent_node.add_child(new_child)
         return new_child
 
-    def simulate(self, node_to_expand):
+    def simulate(self, node_to_expand) -> int:
         """
         Simulation step: Simulate a game from the selected node to a terminal state.
 
@@ -81,28 +82,26 @@ class MonteCarloTreeSearch:
             node_to_expand (Node): The node from which to start the simulation.
 
         Returns:
-            float: The result of the simulation (1.0 for a win, 0.0 for a draw, -1.0 for a loss).
+            int: The score of a simulation when it reaches a terminal state.
         """
         state = deepcopy(node_to_expand.state)
-        while not state.is_terminal:
+        while not state.is_terminal():
             legal_moves = state.get_legal_moves()
             move = random.choice(legal_moves)  # Randomly select a legal move
             state.make_move(move)
-        return state.get_result(
-            node_to_expand.state.current_player
-        )  # Get the result from the perspective of the expanding player
+        return state.score()
 
-    def backpropagate(self, node_to_expand, result):
+    def backpropagate(self, node, result):
         """
         Backpropagation step: Update visit counts and values along the path to the root.
 
         Args:
             node_to_expand (Node): The node from which the result was obtained.
-            result (float): The result of the simulation.
+            result (int): The result of the simulation.
         """
-        while node_to_expand is not None:
-            node_to_expand.update(result)
-            node_to_expand = node_to_expand.parent
+        while node is not None:
+            node.update(result)
+            node = node.parent
 
     def get_best_move(self):
         """

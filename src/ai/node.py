@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+from copy import deepcopy
 from typing import List, Optional, Type
 
 from board import Board
@@ -20,11 +21,11 @@ class Node:
             state (Board): The game state associated with this node.
             parent (Node, optional): The parent node. If None, this node is the root node.
         """
-        self.state = state  # The game state associated with this node
-        self.parent = parent  # Parent node
+        self.state = deepcopy(state)
+        self.parent = parent
         self.children: List[Type[Node]] = []  # List of child nodes
         self.visits: int = 0  # Number of times this node has been visited
-        self.value: float = 0  # Total value accumulated from this node
+        self.value: int = 0  # Total value accumulated from this node
 
     def is_fully_expanded(self) -> bool:
         """
@@ -44,7 +45,7 @@ class Node:
 
         Args:
             exploration_weight (float): A hyperparameter that controls
-            the balance between exploration and exploitation.
+            the balance between exploration and exploitation. Defaults to math.sqrt(2).
 
         Returns:
             Node: The selected child node.
@@ -80,13 +81,12 @@ class Node:
         """
         self.children.append(child_node)
 
-    def update(self, result: float):
+    def update(self, result: int):
         """
         Update the visit count and value of this node based on the result of a simulation.
 
         Args:
-            result (float): The result of a simulation
-            (e.g., 1.0 for a win, 0.0 for a draw, -1.0 for a loss).
+            result (int): The score of a simulation when it reaches a terminal state.
         """
         self.visits += 1
         self.value += result
@@ -100,20 +100,20 @@ class Node:
         """
         return max(self.children, key=lambda child: child.value)
 
-    def get_most_visited_child(self):
-        """
-        Get the child node with the most visits (exploration).
+    # def get_most_visited_child(self):
+    #     """
+    #     Get the child node with the most visits (exploration).
 
-        Returns:
-            Node: The child node with the most visits.
-        """
-        return max(self.children, key=lambda child: child.visits)
+    #     Returns:
+    #         Node: The child node with the most visits.
+    #     """
+    #     return max(self.children, key=lambda child: child.visits)
 
-    def get_state(self):
-        """
-        Get the game state associated with this node.
+    # def get_state(self):
+    #     """
+    #     Get the game state associated with this node.
 
-        Returns:
-            Board: The game state.
-        """
-        return self.state
+    #     Returns:
+    #         Board: The game state.
+    #     """
+    #     return self.state
