@@ -38,7 +38,7 @@ from PyConnect4 import Board
 board = Board()
 
 # Alternatively, you can initialize a board with a specific game position
-position = "1234567776"
+position = "1234567776" # Moves to be made in order from an empty board
 board = Board(position)
 ```
 
