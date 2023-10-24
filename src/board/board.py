@@ -279,6 +279,24 @@ class Board:
         self.turn = self.turn ^ 1  # Revert turn to the player who made the move
         self.position = self.position[:-1]
 
+    def score(self) -> int:
+        """
+        Return the score of the current position.
+
+        We define a score for any non final position reflecting the
+        outcome of the game for the player to play, considering that
+        both players play perfectly and try to win as soon as possible
+        or lose as late as possible.
+
+        Returns:
+            int: Score of the current position
+        """
+        if self.is_win(player=0):
+            return 22 - self.player0_bitboard.bit_count()
+        if self.is_win(player=1):
+            return self.player1_bitboard.bit_count() - 22
+        return 0  # Draw
+
     def print_bitboard(self, bitboard: int):
         """
         Prints the given bitboard in the terminal.
